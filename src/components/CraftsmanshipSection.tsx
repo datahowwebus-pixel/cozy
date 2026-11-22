@@ -1,12 +1,19 @@
-import { useState } from 'react';
-import { motion, useReducedMotion } from 'motion/react';
+import { useRef, useState } from 'react';
+import { motion, useReducedMotion, useScroll, useTransform } from 'motion/react';
 import { BACKDROPS, YARN_SPEC_PROFILES } from '../data/products';
 import { ResilientImage } from './ResilientImage';
 import { CrochetLaceDivider, FloralStitchCorner } from './CrochetDecor';
 
 export function CraftsmanshipSection() {
+  const craftRef = useRef<HTMLDivElement>(null);
   const prefersReducedMotion = useReducedMotion();
   const [selectedYarnId, setSelectedYarnId] = useState(YARN_SPEC_PROFILES[0].id);
+
+  const { scrollYProgress } = useScroll({
+    target: craftRef,
+    offset: ['start end', 'end start'],
+  });
+  const bgY = useTransform(scrollYProgress, [0, 1], ['-8%', '8%']);
 
   const selectedYarn =
     YARN_SPEC_PROFILES.find((y) => y.id === selectedYarnId) ?? YARN_SPEC_PROFILES[0];
@@ -30,19 +37,24 @@ export function CraftsmanshipSection() {
       <CrochetLaceDivider fillTop="#F7F3FD" fillBottom="#FCECF0" />
 
       {/* Section 03A: Handcraft Process Showcase with Pastel Stitched Card */}
-      <div className="relative overflow-hidden py-16 lg:py-20">
-        <ResilientImage
-          src={BACKDROPS.yarnStudio}
-          alt=""
-          className="absolute inset-0 h-full w-full object-cover opacity-55"
-        />
+      <div ref={craftRef} className="relative overflow-hidden py-16 lg:py-20">
+        <motion.div
+          style={prefersReducedMotion ? undefined : { y: bgY, scale: 1.1 }}
+          className="pointer-events-none absolute inset-0"
+        >
+          <ResilientImage
+            src={BACKDROPS.yarnStudio}
+            alt=""
+            className="h-full w-full object-cover opacity-55"
+          />
+        </motion.div>
         <div className="absolute inset-0 bg-gradient-to-b from-[#FCECF0]/75 via-[#FFFDF9]/55 to-[#FFFDF9]/85" />
 
         <div className="relative z-10 mx-auto max-w-[1160px] px-6">
           <motion.div
-            initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 28 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.25 }}
+            initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 28, scale: 0.98 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            viewport={{ once: false, amount: 0.2 }}
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
             className="relative rounded-[28px] border-2 border-dashed border-[#9D4463]/30 bg-[#FFFDF9]/94 p-6 shadow-[0_20px_55px_rgba(120,68,85,0.14)] backdrop-blur-md sm:p-10"
           >
@@ -125,9 +137,9 @@ export function CraftsmanshipSection() {
                   key={yarn.id}
                   type="button"
                   onClick={() => setSelectedYarnId(yarn.id)}
-                  initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 18 }}
+                  initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.2 }}
+                  viewport={{ once: false, amount: 0.2 }}
                   transition={{ duration: 0.4, delay: idx * 0.06 }}
                   style={{ backgroundColor: yarn.pastelBg }}
                   className={`rounded-2xl border-2 p-5 text-left transition-all duration-150 cursor-pointer ${

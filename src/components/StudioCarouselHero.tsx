@@ -1,6 +1,20 @@
-import { useState, useMemo, useEffect } from 'react';
-import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
-import { ChevronLeft, ChevronRight, Heart, Plus, Check, Maximize2 } from 'lucide-react';
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
+import {
+  motion,
+  AnimatePresence,
+  useReducedMotion,
+  useScroll,
+  useTransform,
+} from 'motion/react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  Heart,
+  Plus,
+  Check,
+  Maximize2,
+  ArrowDown,
+} from 'lucide-react';
 import { ExtendedProduct, PRODUCTS } from '../data/products';
 import { BabySize, ProductCategory } from '../types';
 import { ResilientImage } from './ResilientImage';
@@ -32,12 +46,23 @@ export function StudioCarouselHero({
   onAddToInquiry,
   onActiveSizeChange,
 }: StudioCarouselHeroProps) {
+  const heroRef = useRef<HTMLElement>(null);
   const prefersReducedMotion = useReducedMotion();
   const [activeCategory, setActiveCategory] = useState<ProductCategory>('all');
   const [centerViewMode, setCenterViewMode] = useState<'worn' | 'flat'>('worn');
   const [selectedSize, setSelectedSize] = useState<BabySize>('3–6M');
   const [selectedSwatchIndex, setSelectedSwatchIndex] = useState(0);
   const [justAdded, setJustAdded] = useState(false);
+
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ['start start', 'end start'],
+  });
+
+  const bgParallaxY = useTransform(scrollYProgress, [0, 1], ['0%', '16%']);
+  const bgParallaxScale = useTransform(scrollYProgress, [0, 1], [1, 1.1]);
+  const stageParallaxY = useTransform(scrollYProgress, [0, 1], [0, -36]);
+  const stageOpacity = useTransform(scrollYProgress, [0, 0.85], [1, 0.35]);
 
   const visibleProducts = useMemo(() => {
     if (activeCategory === 'all') return PRODUCTS;
@@ -67,15 +92,26 @@ export function StudioCarouselHero({
     }
   };
 
-  const handlePrev = () => {
+  const handlePrev = useCallback(() => {
     const prevIdx = (activeIndexInVisible - 1 + visibleProducts.length) % visibleProducts.length;
     onSelectProductId(visibleProducts[prevIdx].id);
-  };
+  }, [activeIndexInVisible, visibleProducts, onSelectProductId]);
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     const nextIdx = (activeIndexInVisible + 1) % visibleProducts.length;
     onSelectProductId(visibleProducts[nextIdx].id);
-  };
+  }, [activeIndexInVisible, visibleProducts, onSelectProductId]);
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (target && ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName)) return;
+      if (e.key === 'ArrowLeft') handlePrev();
+      if (e.key === 'ArrowRight') handleNext();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [handlePrev, handleNext]);
 
   const cycleSize = () => {
     const idx = activeProduct.sizes.indexOf(selectedSize);
@@ -105,28 +141,36 @@ export function StudioCarouselHero({
 
   return (
     <section
+      ref={heroRef}
       id="studio"
       className="relative flex min-h-[calc(100vh-68px)] flex-col justify-between overflow-hidden bg-[#FCECF0] py-6 sm:py-8"
     >
-      {/* Dynamic Full-Bleed Backdrop: Shows Baby Wearing Currently Selected Dress */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={activeProduct.id}
-          initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 1.04 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="pointer-events-none absolute inset-0 z-0"
-        >
-          <ResilientImage
-            src={activeProduct.backdropImage}
-            alt=""
-            className={`h-full w-full object-cover ${activeProduct.backdropPosition ?? 'object-center'}`}
-          />
-          {/* Light directional veil: keeps side baby clearly visible while keeping top/bottom UI crisp */}
-          <div className="absolute inset-0 bg-gradient-to-b from-[#FFFDF9]/45 via-transparent to-[#FFFDF9]/60" />
-        </motion.div>
-      </AnimatePresence>
+      {/* Dynamic Scroll-Parallax Backdrop: Shows Baby Wearing Currently Selected Dress */}
+      <motion.div
+        style={
+          prefersReducedMotion ? undefined : { y: bgParallaxY, scale: bgParallaxScale }
+        }
+        className="pointer-events-none absolute inset-0 z-0"
+      >
+        <AnimatePresence mode="sync">
+          <motion.div
+            key={activeProduct.id}
+            initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 1.05 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="absolute inset-0"
+          >
+            <ResilientImage
+              src={activeProduct.backdropImage}
+              alt=""
+              className={`h-full w-full object-cover ${activeProduct.backdropPosition ?? 'object-center'}`}
+            />
+          </motion.div>
+        </AnimatePresence>
+        {/* Light directional veil: keeps side baby clearly visible while keeping top/bottom UI crisp */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#FFFDF9]/45 via-transparent to-[#FFFDF9]/60" />
+      </motion.div>
 
       {/* Top 2-Row Frosted Cream Pill Control Bar */}
       <div className="relative z-20 mx-auto flex w-full max-w-[1200px] flex-col items-center gap-2.5 px-4">
@@ -178,8 +222,15 @@ export function StudioCarouselHero({
         </div>
       </div>
 
-      {/* Center Stage: 3D Coverflow — Side Cards = Flat-Lay Cloth, Center Card = Baby Wearing It */}
-      <div className="relative z-20 mx-auto my-4 flex w-full max-w-[1380px] flex-1 items-center justify-center px-4 sm:px-10">
+      {/* Center Stage: 3D Coverflow with Swipe & Scroll Parallax */}
+      <motion.div
+        style={
+          prefersReducedMotion
+            ? undefined
+            : { y: stageParallaxY, opacity: stageOpacity }
+        }
+        className="relative z-20 mx-auto my-4 flex w-full max-w-[1380px] flex-1 items-center justify-center px-4 sm:px-10"
+      >
         {/* Left Arrow */}
         <button
           type="button"
@@ -190,33 +241,32 @@ export function StudioCarouselHero({
           <ChevronLeft className="h-5 w-5" />
         </button>
 
-        {/* 5-Card Coverflow Viewport */}
+        {/* 3-Card Coverflow Viewport */}
         <div
           className="relative flex h-[380px] w-full items-center justify-center sm:h-[445px]"
           style={{ perspective: '1400px' }}
         >
           {coverflowSlots.map(({ offset, product }) => {
             const isCenter = offset === 0;
-            const absOffset = Math.abs(offset);
             const xTranslate =
-              offset === 0
-                ? '0%'
-                : offset === -1
-                ? '-112%'
-                : offset === 1
-                ? '112%'
-                : offset === -2
-                ? '-196%'
-                : '196%';
+              offset === 0 ? '0%' : offset === -1 ? '-112%' : '112%';
 
-            const scale = isCenter ? 1 : absOffset === 1 ? 0.8 : 0.66;
+            const scale = isCenter ? 1 : 0.8;
             const rotateY = offset === 0 ? 0 : offset < 0 ? 12 : -12;
-            const zIndex = isCenter ? 30 : absOffset === 1 ? 20 : 10;
-            const opacity = isCenter ? 1 : absOffset === 1 ? 0.94 : 0.72;
+            const zIndex = isCenter ? 30 : 20;
+            const opacity = isCenter ? 1 : 0.94;
 
             return (
               <motion.div
                 key={`${product.id}-${offset}`}
+                drag={isCenter && !prefersReducedMotion ? 'x' : false}
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={0.18}
+                onDragEnd={(_, info) => {
+                  if (!isCenter) return;
+                  if (info.offset.x < -55) handleNext();
+                  if (info.offset.x > 55) handlePrev();
+                }}
                 animate={
                   prefersReducedMotion
                     ? { opacity: isCenter ? 1 : 0.75 }
@@ -226,6 +276,9 @@ export function StudioCarouselHero({
                         rotateY,
                         opacity,
                       }
+                }
+                whileHover={
+                  isCenter && !prefersReducedMotion ? { scale: 1.015 } : undefined
                 }
                 transition={{
                   type: 'spring',
@@ -241,7 +294,7 @@ export function StudioCarouselHero({
                   isCenter
                     ? 'h-[365px] w-[272px] rounded-[28px] border-2 border-dashed border-[#D8A7B5] p-2.5 shadow-[0_26px_65px_rgba(110,55,75,0.26)] sm:h-[430px] sm:w-[324px]'
                     : 'hidden h-[290px] w-[210px] rounded-2xl border border-[#9D4463]/20 p-2.5 shadow-lg backdrop-blur-md md:flex sm:h-[320px] sm:w-[230px]'
-                } ${absOffset === 2 ? 'lg:flex hidden!' : ''}`}
+                }`}
               >
                 {isCenter ? (
                   <div className="relative flex h-full w-full flex-col overflow-hidden rounded-[20px]">
@@ -257,7 +310,7 @@ export function StudioCarouselHero({
                           initial={
                             prefersReducedMotion
                               ? { opacity: 0 }
-                              : { opacity: 0, scale: 1.04 }
+                              : { opacity: 0, scale: 1.05 }
                           }
                           animate={{ opacity: 1, scale: 1 }}
                           exit={{ opacity: 0 }}
@@ -369,10 +422,10 @@ export function StudioCarouselHero({
         >
           <ChevronRight className="h-5 w-5" />
         </button>
-      </div>
+      </motion.div>
 
       {/* Floating Cream Stitched Control Dock */}
-      <div className="relative z-20 mx-auto w-full max-w-[820px] px-4">
+      <div className="relative z-20 mx-auto w-full max-w-[860px] px-4">
         <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border-2 border-dashed border-[#D8A7B5] bg-[#FFFDF9]/96 px-5 py-3.5 text-[#362426] shadow-[0_18px_45px_rgba(115,65,80,0.18)] backdrop-blur-md">
           <div className="min-w-[190px] flex-1">
             <button
@@ -439,6 +492,14 @@ export function StudioCarouselHero({
                 </>
               )}
             </button>
+
+            <a
+              href="#collection-showcase"
+              aria-label="Scroll to animated lookbook"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#9D4463]/20 bg-[#FCECF0]/70 text-[#9D4463] transition-transform hover:translate-y-0.5 hover:bg-[#FCECF0]"
+            >
+              <ArrowDown className="h-4 w-4" />
+            </a>
           </div>
         </div>
       </div>

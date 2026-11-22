@@ -1,5 +1,6 @@
+import { useRef } from 'react';
 import { ArrowRight, Check } from 'lucide-react';
-import { motion, useReducedMotion } from 'motion/react';
+import { motion, useReducedMotion, useScroll, useTransform } from 'motion/react';
 import { BACKDROPS, TESTIMONIALS } from '../data/products';
 import { ResilientImage } from './ResilientImage';
 import { CrochetLaceDivider, FloralStitchCorner } from './CrochetDecor';
@@ -11,7 +12,14 @@ interface SupplyTestimonialsSectionProps {
 export function SupplyTestimonialsSection({
   onOpenInquiry,
 }: SupplyTestimonialsSectionProps) {
+  const sectionRef = useRef<HTMLDivElement>(null);
   const prefersReducedMotion = useReducedMotion();
+
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ['start end', 'end start'],
+  });
+  const bgY = useTransform(scrollYProgress, [0, 1], ['-8%', '8%']);
 
   const servicePillars = [
     {
@@ -38,19 +46,24 @@ export function SupplyTestimonialsSection({
     <section className="relative overflow-hidden bg-[#FFFDF9]">
       <CrochetLaceDivider fillTop="#FDF6EC" fillBottom="#EAF4FB" />
 
-      <div className="relative py-16 lg:py-24">
-        <ResilientImage
-          src={BACKDROPS.nursery}
-          alt=""
-          className="absolute inset-0 h-full w-full object-cover opacity-55"
-        />
+      <div ref={sectionRef} className="relative overflow-hidden py-16 lg:py-24">
+        <motion.div
+          style={prefersReducedMotion ? undefined : { y: bgY, scale: 1.1 }}
+          className="pointer-events-none absolute inset-0"
+        >
+          <ResilientImage
+            src={BACKDROPS.nursery}
+            alt=""
+            className="h-full w-full object-cover opacity-55"
+          />
+        </motion.div>
         <div className="absolute inset-0 bg-gradient-to-b from-[#EAF4FB]/80 via-[#FFFDF9]/65 to-[#FCECF0]/80" />
 
         <div className="relative z-10 mx-auto max-w-[1160px] px-6">
           <motion.div
-            initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 28 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.2 }}
+            initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 28, scale: 0.98 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            viewport={{ once: false, amount: 0.2 }}
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
             className="relative rounded-[28px] border-2 border-dashed border-[#9D4463]/28 bg-[#FFFDF9]/94 p-6 shadow-[0_24px_65px_rgba(115,65,80,0.15)] backdrop-blur-md sm:p-10"
           >
