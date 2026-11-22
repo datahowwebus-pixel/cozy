@@ -21,6 +21,8 @@ export interface Product {
   categoryLabel: string;
   image: string;
   imageAlt: string;
+  wornImage?: string;
+  wornImageAlt?: string;
   availabilityLabel: string;
   piecesIncluded: string[];
   craftHours: number;

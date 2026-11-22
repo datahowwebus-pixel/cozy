@@ -19,7 +19,11 @@ export const CUSTOM_YARN_PALETTE: YarnSwatch[] = [
 
 export interface ExtendedProduct extends Product {
   shortName: string;
+  wornImage: string;
+  wornImageAlt: string;
   backdropImage: string;
+  backdropPosition?: string;
+  babySide: 'left' | 'right';
   pastelSurface: string;
   pastelAccent: string;
 }
@@ -35,7 +39,12 @@ export const PRODUCTS: ExtendedProduct[] = [
     category: 'dress-sets',
     categoryLabel: '3-Piece Dress Sets',
     image: '/assets/aistudio/sfsfs_0ade04ac.jpeg',
-    backdropImage: BACKDROPS.nursery,
+    wornImage: '/src/assets/images/baby_wearing_blush_rose_1795339186502.jpg',
+    wornImageAlt:
+      'Smiling baby girl wearing the Blush Rose Garden crochet dress, floral brim sun hat, and ivory-cuffed pink booties',
+    backdropImage: '/src/assets/images/scene_blush_rose_1795339185329.jpg',
+    backdropPosition: 'object-[80%_28%]',
+    babySide: 'right',
     pastelSurface: '#FCECF0',
     pastelAccent: '#D97B93',
     imageAlt:
@@ -69,12 +78,17 @@ export const PRODUCTS: ExtendedProduct[] = [
     subtitle: 'Long-sleeve lacy plum frock, floral beret & pearl-accent booties',
     category: 'dress-sets',
     categoryLabel: '3-Piece Dress Sets',
-    image: '/assets/aistudio/sfsf_d2887be9.jpeg',
-    backdropImage: BACKDROPS.embroidery,
+    image: '/src/assets/images/flatlay_mulberry_rose_1795339184857.jpg',
+    wornImage: '/assets/aistudio/sfsf_d2887be9.jpeg',
+    wornImageAlt:
+      'Deep mulberry plum long-sleeve crochet baby dress worn by a smiling Pakistani baby girl with coral-pink roses, beret, and booties',
+    backdropImage: '/src/assets/images/scene_mulberry_rose_left_1795339675786.jpg',
+    backdropPosition: 'object-[18%_25%]',
+    babySide: 'left',
     pastelSurface: '#F7EBF0',
     pastelAccent: '#9D4463',
     imageAlt:
-      'Deep mulberry plum long-sleeve crochet baby dress adorned with three coral-pink roses at the waist, matching floral beret hat, and booties',
+      'Flat-lay of deep mulberry plum long-sleeve crochet baby dress adorned with three coral-pink roses at the waist, matching floral beret hat, and booties',
     availabilityLabel: 'Signature Edition',
     piecesIncluded: [
       'Long-sleeve open-lace mulberry dress',
@@ -105,7 +119,12 @@ export const PRODUCTS: ExtendedProduct[] = [
     category: 'dress-sets',
     categoryLabel: '3-Piece Dress Sets',
     image: '/assets/aistudio/dgdgd_8f4f2c07.jpeg',
-    backdropImage: BACKDROPS.yarnStudio,
+    wornImage: '/src/assets/images/baby_wearing_azure_blossom_1795339186157.jpg',
+    wornImageAlt:
+      'Happy baby girl wearing the sky blue and ocean teal Azure Blossom crochet dress, daisy sun hat, and floral booties',
+    backdropImage: '/src/assets/images/scene_azure_blossom_1795339184740.jpg',
+    backdropPosition: 'object-[80%_28%]',
+    babySide: 'right',
     pastelSurface: '#EAF4FB',
     pastelAccent: '#5C9EC9',
     imageAlt:
@@ -140,7 +159,12 @@ export const PRODUCTS: ExtendedProduct[] = [
     category: 'dress-sets',
     categoryLabel: '3-Piece Dress Sets',
     image: '/assets/aistudio/sgsg_04352753.jpeg',
-    backdropImage: BACKDROPS.embroidery,
+    wornImage: '/src/assets/images/baby_wearing_lavender_pakistani_1795339675880.jpg',
+    wornImageAlt:
+      'Smiling Pakistani baby girl wearing the snow-white Lavender Meadow crochet dress with purple rosebuds, matching sun hat, and lavender-cuffed booties',
+    backdropImage: '/src/assets/images/scene_lavender_meadow_left_1795339675911.jpg',
+    backdropPosition: 'object-[18%_28%]',
+    babySide: 'left',
     pastelSurface: '#F3EEFA',
     pastelAccent: '#8E6EC2',
     imageAlt:
@@ -174,7 +198,12 @@ export const PRODUCTS: ExtendedProduct[] = [
     category: 'dress-sets',
     categoryLabel: '3-Piece Dress Sets',
     image: '/assets/aistudio/WhatsApp_Image_2026-11-22_at_1.14.37_PM_b5ad22d3.jpeg',
-    backdropImage: BACKDROPS.nursery,
+    wornImage: '/src/assets/images/baby_wearing_ivory_pakistani_1795339676028.jpg',
+    wornImageAlt:
+      'Sweet Pakistani baby girl wearing the Ivory Shell open lace crochet dress with pink rose garland, matching floral headband, and cream booties',
+    backdropImage: '/src/assets/images/scene_ivory_shell_right_1795339676197.jpg',
+    backdropPosition: 'object-[82%_26%]',
+    babySide: 'right',
     pastelSurface: '#FEF7E6',
     pastelAccent: '#D98CA3',
     imageAlt:
@@ -208,7 +237,12 @@ export const PRODUCTS: ExtendedProduct[] = [
     category: 'knitwear-blankets',
     categoryLabel: 'Knitwear & Blankets',
     image: '/src/assets/images/product_cardigan_embroidery_1795336176304.jpg',
-    backdropImage: BACKDROPS.yarnStudio,
+    wornImage: '/src/assets/images/baby_wearing_oatmeal_cardigan_1795339211442.jpg',
+    wornImageAlt:
+      'Smiling baby wearing the oatmeal cream button-front knit cardigan with hand-embroidered dusty pink rosebuds on the collar and pockets',
+    backdropImage: '/src/assets/images/scene_oatmeal_cardigan_left_1795339675595.jpg',
+    backdropPosition: 'object-[18%_25%]',
+    babySide: 'left',
     pastelSurface: '#FDF5EB',
     pastelAccent: '#C98A95',
     imageAlt:
@@ -242,7 +276,12 @@ export const PRODUCTS: ExtendedProduct[] = [
     category: 'knitwear-blankets',
     categoryLabel: 'Knitwear & Blankets',
     image: '/src/assets/images/product_floral_blanket_1795336176371.jpg',
-    backdropImage: BACKDROPS.nursery,
+    wornImage: '/src/assets/images/baby_on_daisy_blanket_1795339185888.jpg',
+    wornImageAlt:
+      'Happy baby resting on the ivory cream hand-crocheted raised-daisy heirloom baby blanket',
+    backdropImage: '/src/assets/images/scene_daisy_blanket_right_1795339675896.jpg',
+    backdropPosition: 'object-[82%_32%]',
+    babySide: 'right',
     pastelSurface: '#FEF8EC',
     pastelAccent: '#C79B68',
     imageAlt:
@@ -276,7 +315,12 @@ export const PRODUCTS: ExtendedProduct[] = [
     category: 'bonnets-embroidery',
     categoryLabel: 'Bonnets & Embroidery',
     image: '/src/assets/images/product_booties_bonnet_1795336176815.jpg',
-    backdropImage: BACKDROPS.yarnStudio,
+    wornImage: '/src/assets/images/baby_wearing_sage_bonnet_1795339183875.jpg',
+    wornImageAlt:
+      'Sweet baby wearing the sage green ribbed pixie tie bonnet and matching daisy-embroidered Mary-Jane booties',
+    backdropImage: '/src/assets/images/scene_sage_bonnet_left_1795339676223.jpg',
+    backdropPosition: 'object-[18%_25%]',
+    babySide: 'left',
     pastelSurface: '#EDF5EE',
     pastelAccent: '#6E9974',
     imageAlt:
@@ -310,7 +354,12 @@ export const PRODUCTS: ExtendedProduct[] = [
     category: 'bonnets-embroidery',
     categoryLabel: 'Bonnets & Embroidery',
     image: '/src/assets/images/product_embroidery_hoop_1795336176312.jpg',
-    backdropImage: BACKDROPS.embroidery,
+    wornImage: '/src/assets/images/baby_wearing_floral_bib_1795339184729.jpg',
+    wornImageAlt:
+      'Cheerful baby wearing the scalloped cream crochet bib embroidered with pink rose garlands beside a floral initial nursery hoop',
+    backdropImage: '/src/assets/images/scene_floral_bib_right_1795339675696.jpg',
+    backdropPosition: 'object-[82%_26%]',
+    babySide: 'right',
     pastelSurface: '#FCEFF2',
     pastelAccent: '#9D4463',
     imageAlt:

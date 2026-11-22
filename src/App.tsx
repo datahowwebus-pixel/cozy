@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { ClipboardList } from 'lucide-react';
-import { ExtendedProduct, PRODUCTS } from './data/products';
+import { PRODUCTS } from './data/products';
 import { BabySize, InquiryItem, Product } from './types';
 import { StitchScrollProgress } from './components/CrochetDecor';
 import { Header } from './components/Header';
@@ -24,20 +24,15 @@ export default function App() {
   const [isInquiryOpen, setIsInquiryOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  const [focusedPiece, setFocusedPiece] = useState<{
-    product: ExtendedProduct;
-    size: BabySize;
-  }>({
-    product: PRODUCTS[0],
-    size: '3–6M',
-  });
+  const [activeProductId, setActiveProductId] = useState<string>(PRODUCTS[0].id);
+  const [activeSize, setActiveSize] = useState<BabySize>('3–6M');
 
-  const handleActiveProductChange = useCallback(
-    (product: ExtendedProduct, size: BabySize) => {
-      setFocusedPiece({ product, size });
-    },
-    []
-  );
+  const activeProduct =
+    PRODUCTS.find((p) => p.id === activeProductId) ?? PRODUCTS[0];
+
+  const handleActiveSizeChange = useCallback((size: BabySize) => {
+    setActiveSize(size);
+  }, []);
 
   const triggerToast = (message: string) => {
     setToastMessage(message);
@@ -121,14 +116,18 @@ export default function App() {
 
       <main>
         <StudioCarouselHero
+          activeProductId={activeProductId}
+          onSelectProductId={setActiveProductId}
           wishlistIds={wishlistIds}
           onToggleWishlist={handleToggleWishlist}
           onQuickView={(product) => setQuickViewProduct(product)}
           onAddToInquiry={(product, size) => handleAddToInquiry(product, size, 1)}
-          onActiveProductChange={handleActiveProductChange}
+          onActiveSizeChange={handleActiveSizeChange}
         />
 
         <ShowcaseBands
+          activeProduct={activeProduct}
+          onSelectProductId={setActiveProductId}
           onQuickView={(product) => setQuickViewProduct(product)}
           onOpenBespoke={() => setIsBespokeOpen(true)}
         />
@@ -183,23 +182,23 @@ export default function App() {
       <div className="pointer-events-none fixed right-4 bottom-4 z-30 hidden items-center gap-2 sm:flex">
         <button
           type="button"
-          onClick={() => setQuickViewProduct(focusedPiece.product)}
+          onClick={() => setQuickViewProduct(activeProduct)}
           className="pointer-events-auto inline-flex items-center gap-2.5 rounded-full border border-[#9D4463]/20 bg-[#FFFDF9]/92 px-3.5 py-2 text-xs text-[#362426] shadow-md backdrop-blur-md transition-colors hover:border-[#9D4463] cursor-pointer"
         >
           <span
             className="h-2.5 w-2.5 rounded-full border border-black/15"
-            style={{ backgroundColor: focusedPiece.product.swatches[0].hex }}
+            style={{ backgroundColor: activeProduct.swatches[0].hex }}
           />
-          <span className="font-semibold">{focusedPiece.product.shortName}</span>
+          <span className="font-semibold">{activeProduct.shortName}</span>
           <span className="text-[#715B5E]">·</span>
-          <span className="tabular-nums text-[#715B5E]">{focusedPiece.size}</span>
+          <span className="tabular-nums text-[#715B5E]">{activeSize}</span>
         </button>
 
         <a
-          href="#collection-showcase"
+          href="#live-baby-preview"
           className="pointer-events-auto inline-flex items-center rounded-full border border-[#9D4463]/20 bg-[#FCECF0]/95 px-3.5 py-2 text-xs font-semibold text-[#9D4463] shadow-md backdrop-blur-md transition-colors hover:bg-[#FCECF0]"
         >
-          Explore Collection · Scroll
+          See Baby Look · Scroll
         </a>
       </div>
 

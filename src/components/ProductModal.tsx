@@ -28,6 +28,7 @@ export function ProductModal({
   const [selectedSize, setSelectedSize] = useState<BabySize>('3–6M');
   const [quantity, setQuantity] = useState(1);
   const [embroideryText, setEmbroideryText] = useState('');
+  const [viewMode, setViewMode] = useState<'worn' | 'flat'>('worn');
   const [isZoomed, setIsZoomed] = useState(false);
   const [addedConfirm, setAddedConfirm] = useState(false);
 
@@ -36,6 +37,7 @@ export function ProductModal({
       setSelectedSize(product.sizes[0] ?? '3–6M');
       setQuantity(1);
       setEmbroideryText('');
+      setViewMode(product.wornImage ? 'worn' : 'flat');
       setIsZoomed(false);
       setAddedConfirm(false);
     }
@@ -61,6 +63,13 @@ export function ProductModal({
       onClose();
     }, 650);
   };
+
+  const activePhotoSrc =
+    viewMode === 'worn' && product?.wornImage ? product.wornImage : product?.image ?? '';
+  const activePhotoAlt =
+    viewMode === 'worn' && product?.wornImageAlt
+      ? product.wornImageAlt
+      : product?.imageAlt ?? '';
 
   return (
     <AnimatePresence>
@@ -105,37 +114,110 @@ export function ProductModal({
               <X className="h-5 w-5" />
             </button>
 
-            {/* Left Sticky Photo Preview */}
-            <div className="relative bg-[#FCECF0]/60 p-3 lg:col-span-6 lg:p-4">
-              <div className="relative aspect-[4/3] h-full w-full overflow-hidden rounded-2xl bg-white lg:aspect-auto lg:min-h-[500px]">
+            {/* Left Sticky Dual-View Photo Preview */}
+            <div className="relative flex flex-col justify-between gap-3 bg-[#FCECF0]/60 p-3 lg:col-span-6 lg:p-4">
+              <div className="relative aspect-[4/3] h-full w-full overflow-hidden rounded-2xl bg-white lg:aspect-auto lg:min-h-[440px]">
                 <ResilientImage
-                  src={product.image}
-                  alt={product.imageAlt}
+                  src={activePhotoSrc}
+                  alt={activePhotoAlt}
                   fallbackTitle={product.name}
                   className={`h-full w-full object-cover transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-                    isZoomed ? 'scale-125' : 'scale-100'
-                  }`}
+                    viewMode === 'worn' ? 'object-top' : 'object-center'
+                  } ${isZoomed ? 'scale-125' : 'scale-100'}`}
                 />
+
+                {product.wornImage && (
+                  <div
+                    role="group"
+                    aria-label="Preview angle"
+                    className="absolute top-3 left-3 flex items-center gap-1 rounded-full border border-[#9D4463]/20 bg-[#FFFDF9]/92 p-1 shadow-sm backdrop-blur-sm"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setViewMode('worn')}
+                      className={`rounded-full px-3 py-1 text-[11px] font-semibold transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+                        viewMode === 'worn'
+                          ? 'bg-[#9D4463] text-white'
+                          : 'text-[#5A4246] hover:text-[#362426]'
+                      }`}
+                    >
+                      Worn by Baby
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setViewMode('flat')}
+                      className={`rounded-full px-3 py-1 text-[11px] font-semibold transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+                        viewMode === 'flat'
+                          ? 'bg-[#9D4463] text-white'
+                          : 'text-[#5A4246] hover:text-[#362426]'
+                      }`}
+                    >
+                      Flat-Lay Set
+                    </button>
+                  </div>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => setIsZoomed((z) => !z)}
+                  aria-label={isZoomed ? 'Reset zoom' : 'Zoom in to inspect stitches'}
+                  className="absolute right-3 bottom-3 inline-flex min-h-[38px] items-center gap-1.5 rounded-full border border-[#9D4463]/20 bg-[#FFFDF9]/92 px-3.5 py-1.5 text-xs font-semibold text-[#362426] shadow-sm backdrop-blur-sm transition-colors hover:bg-white cursor-pointer"
+                >
+                  {isZoomed ? (
+                    <>
+                      <ZoomOut className="h-3.5 w-3.5 text-[#9D4463]" aria-hidden="true" />
+                      <span>Reset Zoom</span>
+                    </>
+                  ) : (
+                    <>
+                      <ZoomIn className="h-3.5 w-3.5 text-[#9D4463]" aria-hidden="true" />
+                      <span>Inspect Stitches</span>
+                    </>
+                  )}
+                </button>
               </div>
 
-              <button
-                type="button"
-                onClick={() => setIsZoomed((z) => !z)}
-                aria-label={isZoomed ? 'Reset zoom' : 'Zoom in to inspect stitches'}
-                className="absolute right-7 bottom-7 inline-flex min-h-[38px] items-center gap-1.5 rounded-full border border-[#9D4463]/20 bg-[#FFFDF9]/92 px-3.5 py-1.5 text-xs font-semibold text-[#362426] shadow-sm backdrop-blur-sm transition-colors hover:bg-white cursor-pointer"
-              >
-                {isZoomed ? (
-                  <>
-                    <ZoomOut className="h-3.5 w-3.5 text-[#9D4463]" aria-hidden="true" />
-                    <span>Reset Zoom</span>
-                  </>
-                ) : (
-                  <>
-                    <ZoomIn className="h-3.5 w-3.5 text-[#9D4463]" aria-hidden="true" />
-                    <span>Inspect Stitches</span>
-                  </>
-                )}
-              </button>
+              {product.wornImage && (
+                <div className="grid grid-cols-2 gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setViewMode('worn')}
+                    className={`flex items-center gap-2.5 rounded-xl border p-1.5 text-left transition-all cursor-pointer ${
+                      viewMode === 'worn'
+                        ? 'border-[#9D4463] bg-white shadow-xs'
+                        : 'border-[#9D4463]/15 bg-white/70 opacity-80 hover:opacity-100'
+                    }`}
+                  >
+                    <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg">
+                      <ResilientImage
+                        src={product.wornImage}
+                        alt={product.wornImageAlt ?? product.name}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                    <span className="text-xs font-semibold text-[#362426]">Worn by Baby</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setViewMode('flat')}
+                    className={`flex items-center gap-2.5 rounded-xl border p-1.5 text-left transition-all cursor-pointer ${
+                      viewMode === 'flat'
+                        ? 'border-[#9D4463] bg-white shadow-xs'
+                        : 'border-[#9D4463]/15 bg-white/70 opacity-80 hover:opacity-100'
+                    }`}
+                  >
+                    <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg">
+                      <ResilientImage
+                        src={product.image}
+                        alt={product.imageAlt}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                    <span className="text-xs font-semibold text-[#362426]">Outfit Flat-Lay</span>
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Right Spec & Inquiry Module (Zero rates/prices) */}
