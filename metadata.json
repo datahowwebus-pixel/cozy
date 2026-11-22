@@ -1,0 +1,6 @@
+{
+  "name": "Cozy Crochet and Embroidery",
+  "description": "Handcrafted crochet baby dresses, matching floral sun hats, booties, and bespoke embroidery keepsakes by Cozy Crochet and Embroidery.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
